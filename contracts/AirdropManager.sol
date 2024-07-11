@@ -19,12 +19,12 @@ interface IAirdrop1155 {
 
 struct Airdrop {
     address airdropAddress;
-    string airdropTokenName;
+    string airdropName;
 }
 
 contract AirdropManager {
     address[] _owners;
-    address[] _airdrops;
+    Airdrop[] _airdrops;
 
     constructor (address[] memory initialAdmins) {
         _owners = initialAdmins;
@@ -85,19 +85,20 @@ contract AirdropManager {
         return airdrop.getBalance();
     }
 
-    function getAirdrops() public view onlyAdmins returns(address[] memory) {
+    function getAirdrops() public view returns(Airdrop[] memory) {
         return _airdrops;
     }
 
-    function addAirdrop(address airdropAddress) public onlyAdmins {
-        _airdrops.push(airdropAddress);
+    function addAirdrop(address airdropAddress, string memory airdropName) public onlyAdmins {
+        Airdrop memory newAirdrop = Airdrop(airdropAddress, airdropName);
+        _airdrops.push(newAirdrop);
     }
 
     function removeAirdrop(address airdropAddress) public onlyAdmins {
-        address[] storage filteredAirdrops = _airdrops;
+        Airdrop[] storage filteredAirdrops = _airdrops;
 
         for (uint i; i < _airdrops.length; i++) {
-            if (_airdrops[i] != airdropAddress) filteredAirdrops.push(_airdrops[i]);
+            if (_airdrops[i].airdropAddress != airdropAddress) filteredAirdrops.push(_airdrops[i]);
         }
 
         _airdrops = filteredAirdrops;
