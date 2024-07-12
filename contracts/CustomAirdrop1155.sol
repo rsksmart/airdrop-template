@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -8,11 +8,11 @@ interface IERC1155 {
     function balanceOf(address account, uint256 id) external view returns (uint256);
 }
 
-event Claim(address recipient, uint256 amount);
-event AddressAllowed(address allowedAddress);
-event AddressDisallowed(address disallowedAddress);
-
 contract CustomAirdrop1155 is Ownable {
+    event Claim(address recipient, uint256 amount);
+    event AddressAllowed(address allowedAddress);
+    event AddressDisallowed(address disallowedAddress);
+
     IERC1155 _tokenContract;
     address _initialOwner;
     uint256 _totalAirdropAmount;
@@ -109,7 +109,7 @@ contract CustomAirdrop1155 is Ownable {
         return _tokenContract.balanceOf(address(this), _tokenId);
     }
 
-    function onERC1155Received(address operator, address from, uint256 id, uint256 value, bytes memory data) external returns (bytes4) {
+    function onERC1155Received(address operator, address from, uint256 id, uint256 value, bytes memory data) external pure returns (bytes4) {
         return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
     }
 }
