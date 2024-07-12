@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
+
+import "./Administrable.sol";
 
 interface IAirdrop1155 {
     function claim(address user) external;
@@ -22,23 +24,10 @@ struct Airdrop {
     string airdropName;
 }
 
-contract AirdropManager {
-    address[] _owners;
+contract AirdropManager is Administrable {
     Airdrop[] _airdrops;
 
-    constructor (address[] memory initialAdmins) {
-        _owners = initialAdmins;
-    }
-
-    modifier onlyAdmins {
-        bool allowed = false;
-        for (uint i; i < _owners.length && !allowed; i++) {
-            allowed = _owners[i] == msg.sender;
-        }
-
-        require(allowed, "Address not allowed to call this method");
-        _;
-    }
+    constructor (address[] memory initialAdmins) Administrable(initialAdmins) {}
 
     function claim(address airdropAddress, address user) public onlyAdmins {
         IAirdrop1155 airdrop = IAirdrop1155(airdropAddress);
