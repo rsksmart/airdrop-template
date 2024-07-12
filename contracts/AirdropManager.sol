@@ -26,6 +26,7 @@ struct Airdrop {
 
 contract AirdropManager is Administrable {
     Airdrop[] _airdrops;
+    Airdrop[] _airdropsHistory;
 
     constructor (address[] memory initialAdmins) Administrable(initialAdmins) {}
 
@@ -78,9 +79,14 @@ contract AirdropManager is Administrable {
         return _airdrops;
     }
 
+    function getAirdropsHistory() public view returns(Airdrop[] memory) {
+        return _airdropsHistory;
+    }
+
     function addAirdrop(address airdropAddress, string memory airdropName) public onlyAdmins {
         Airdrop memory newAirdrop = Airdrop(airdropAddress, airdropName);
         _airdrops.push(newAirdrop);
+        _airdropsHistory.push(newAirdrop);
     }
 
     function removeAirdrop(address airdropAddress) public onlyAdmins {
