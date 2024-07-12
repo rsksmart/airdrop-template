@@ -1,0 +1,27 @@
+{
+  "name": "@rsksmart/airdrop-template",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IOVgomezdn/airdrop-template.git"
+  },
+  "keywords": [
+    "airdrop",
+    "rootstock"
+  ],
+  "author": "Rootstock Labs",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IOVgomezdn/airdrop-template/issues"
+  },
+  "homepage": "https://github.com/IOVgomezdn/airdrop-template#readme",
+  "devDependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "hardhat": "^2.22.6"
+  }
+}
