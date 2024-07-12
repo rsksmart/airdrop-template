@@ -1,3 +1,1 @@
 # airdrop-template
-
-Test
