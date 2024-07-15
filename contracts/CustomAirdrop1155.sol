@@ -58,7 +58,7 @@ contract CustomAirdrop1155 is Ownable {
     }
 
     function hasExpired() public view returns(bool) {
-        return _expirationDate > block.timestamp;
+        return _expirationDate < block.timestamp;
     }
 
     function allowAddress(address _address) public onlyOwner {

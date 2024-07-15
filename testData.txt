@@ -1,0 +1,29 @@
+customairdrop: 0x854230998C93f78683e168Cf4B38d7F301A0fFA9
+testerc1155: 0x3c6ED0D227663843131c44Dfb75922f7eE08Bbba
+airdropManager: 0x39d2a0A73ad22104f6689d3D472bc0647070090e
+
+TEST1
+airdrop1
+airdropAddress: 0x854230998C93f78683e168Cf4B38d7F301A0fFA9
+airdropName: TEST1
+
+1. getAirdropAmountLeft: 100000000000000000000 = 100
+
+
+
+2. claim with address 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+
+To claim, it needs to be allowed
+call allowAddress 
+_address: 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+
+
+claim 
+
+airdropAddress: 0x854230998C93f78683e168Cf4B38d7F301A0fFA9
+user: 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+
+call to erc1155 contract
+balanceOf
+account: 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+id: 1
