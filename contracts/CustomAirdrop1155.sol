@@ -41,10 +41,10 @@ contract CustomAirdrop1155 is Ownable {
 
     function claim(address user) public {
         require(isAllowed(user), "Address not allowed to claim this airdrop");
-        require(_expirationDate >= block.timestamp, "Airdrop already expired.");
-        require(!_addressesThatAlreadyClaimed[user], "Address already claimed this airdrop.");
-        require(_airdropAmountLeft <= _claimAmount, "Airdrop has been totally claimed already.");
-        require(_claimAmount <= _tokenContract.balanceOf(address(this), _tokenId), "Airdrop contract has insufficient token balance.");
+        require(!hasExpired(), "Airdrop already expired.");
+        require(!hasClaimed(user), "Address already claimed this airdrop.");
+        require(!hasBeenTotallyClaimed(), "Airdrop has been totally claimed already.");
+        require(hasBalanceToClaim(), "Airdrop contract has insufficient token balance.");
 
         _tokenContract.safeTransferFrom(address(this), user, _tokenId, _claimAmount, '');
         _airdropAmountLeft -= _claimAmount;
@@ -53,12 +53,20 @@ contract CustomAirdrop1155 is Ownable {
         emit Claim(user, _claimAmount);
     }
 
+    function hasBalanceToClaim() public view returns(bool) {
+        return _tokenContract.balanceOf(address(this), _tokenId) >= _claimAmount;
+    }
+
+    function hasBeenTotallyClaimed() public view returns(bool) {
+        return _airdropAmountLeft < _claimAmount;
+    }
+
     function hasClaimed(address _address) public view returns(bool) {
         return _addressesThatAlreadyClaimed[_address];
     }
 
     function hasExpired() public view returns(bool) {
-        return _expirationDate > block.timestamp;
+        return _expirationDate < block.timestamp;
     }
 
     function allowAddress(address _address) public onlyOwner {
