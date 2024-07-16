@@ -1,53 +1,68 @@
-customairdrop: 0xcac58187225aA4EB108807bBF908f571EFeba37F
-testerc1155: 0x3c6ED0D227663843131c44Dfb75922f7eE08Bbba
+customairdrop: 0x9F8d0B3ff8237154ED5984632a45ef28CBf1Cf1C
+testERC1155: 0x2fa7076412CC217840d2d32350550DF5cBd2d615
 airdropManager: 0x39d2a0A73ad22104f6689d3D472bc0647070090e
 
-TEST1
-airdrop1
-airdropAddress: 0xcac58187225aA4EB108807bBF908f571EFeba37F
-airdropName: TEST1
-airdropClaimer: 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+Deploy Custom airdrop
+0x39d2a0A73ad22104f6689d3D472bc0647070090e
+0x2fa7076412CC217840d2d32350550DF5cBd2d615
+1
+100000000000000000000
+1000000000000000000
+1723812085
 
+
+TEST1
 Call AirdropManager Contract
 1. getTotalAirdropAmount: 100000000000000000000 = 100
 2. hasExpired: false
 3. isAllowed 
-    0xcac58187225aA4EB108807bBF908f571EFeba37F
+    0x9F8d0B3ff8237154ED5984632a45ef28CBf1Cf1C
     0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
     returns false
-4. allowAddress
-    0xcac58187225aA4EB108807bBF908f571EFeba37F
+4.first call with a normal user address, not admin, fails after call with the admin address, fails also (caller 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C)
+  allowAddress
+    0x9F8d0B3ff8237154ED5984632a45ef28CBf1Cf1C
     0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
-  first call with a normal user address, not admin, fails
-  after call with the admin address, fails also
+  Should Fail - response fails
 
-**if i call the allowAddress directly from customAirdrop it works to allowAddress
-** I transfer the ownership of customAirdrop, to the airdropmanager contract to be the owner
-
-5. allowAddress again
-  0xcac58187225aA4EB108807bBF908f571EFeba37F
-  0xEE0F2CA40cd73256f9cBb658A671E404931e6c4c (airdrop Claimer #2)
+5. allowAddress again with admin address (caller 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C)
+  0x9F8d0B3ff8237154ED5984632a45ef28CBf1Cf1C
+  0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C (airdrop Claimer #1)
   returns successfull 
 
-with Claimer1 wallet call
-6. isAllowed
-  0xcac58187225aA4EB108807bBF908f571EFeba37F
+6. isAllowed (caller 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C) Airdrop Claimer #1
+  0x9F8d0B3ff8237154ED5984632a45ef28CBf1Cf1C
   0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
   returns true
 
 at erc1155 contract , call 
 7. balanceOf
-  0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+  0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C (airdrop Claimer #1)
   1
   Returns 0
 **this is okay because hasn't claimed yet
 
 on AirdropManager Again call
 8. claim
-  0xcac58187225aA4EB108807bBF908f571EFeba37F
-  0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
-  FAILED claim
+  0x9F8d0B3ff8237154ED5984632a45ef28CBf1Cf1C
+  0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C (airdrop Claimer #1)
+FAILED
 
-as it fails, test direct in the customAirdrop contract
-9. claim 
-  0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+9. on erc1155 contract, call mint to the customairdrop contract
+ mint
+  0x9F8d0B3ff8237154ED5984632a45ef28CBf1Cf1C
+  1
+  100000000000000000000
+  0x
+
+10.Chech balance of customAirdrop contract
+  balanceOf
+    0x9F8d0B3ff8237154ED5984632a45ef28CBf1Cf1C
+    1
+    response 100000000000000000000
+
+11. Try claim 
+on customAirdrop directly
+  claim
+  0x9F8d0B3ff8237154ED5984632a45ef28CBf1Cf1C
+  0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C (airdrop Claimer #1)
