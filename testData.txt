@@ -1,29 +1,53 @@
-customairdrop: 0x854230998C93f78683e168Cf4B38d7F301A0fFA9
+customairdrop: 0xcac58187225aA4EB108807bBF908f571EFeba37F
 testerc1155: 0x3c6ED0D227663843131c44Dfb75922f7eE08Bbba
 airdropManager: 0x39d2a0A73ad22104f6689d3D472bc0647070090e
 
 TEST1
 airdrop1
-airdropAddress: 0x854230998C93f78683e168Cf4B38d7F301A0fFA9
+airdropAddress: 0xcac58187225aA4EB108807bBF908f571EFeba37F
 airdropName: TEST1
+airdropClaimer: 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
 
-1. getAirdropAmountLeft: 100000000000000000000 = 100
+Call AirdropManager Contract
+1. getTotalAirdropAmount: 100000000000000000000 = 100
+2. hasExpired: false
+3. isAllowed 
+    0xcac58187225aA4EB108807bBF908f571EFeba37F
+    0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+    returns false
+4. allowAddress
+    0xcac58187225aA4EB108807bBF908f571EFeba37F
+    0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+  first call with a normal user address, not admin, fails
+  after call with the admin address, fails also
 
+**if i call the allowAddress directly from customAirdrop it works to allowAddress
+** I transfer the ownership of customAirdrop, to the airdropmanager contract to be the owner
 
+5. allowAddress again
+  0xcac58187225aA4EB108807bBF908f571EFeba37F
+  0xEE0F2CA40cd73256f9cBb658A671E404931e6c4c (airdrop Claimer #2)
+  returns successfull 
 
-2. claim with address 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+with Claimer1 wallet call
+6. isAllowed
+  0xcac58187225aA4EB108807bBF908f571EFeba37F
+  0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+  returns true
 
-To claim, it needs to be allowed
-call allowAddress 
-_address: 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+at erc1155 contract , call 
+7. balanceOf
+  0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+  1
+  Returns 0
+**this is okay because hasn't claimed yet
 
+on AirdropManager Again call
+8. claim
+  0xcac58187225aA4EB108807bBF908f571EFeba37F
+  0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
+  FAILED claim
 
-claim 
-
-airdropAddress: 0x854230998C93f78683e168Cf4B38d7F301A0fFA9
-user: 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
-
-call to erc1155 contract
-balanceOf
-account: 0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C
-id: 1
+as it fails, test direct in the customAirdrop contract
+9. claim 
+  0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C

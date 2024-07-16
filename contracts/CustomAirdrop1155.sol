@@ -41,7 +41,7 @@ contract CustomAirdrop1155 is Ownable {
 
     function claim(address user) public {
         require(isAllowed(user), "Address not allowed to claim this airdrop");
-        require(_expirationDate >= block.timestamp, "Airdrop already expired.");
+        require(_expirationDate < block.timestamp, "Airdrop already expired.");
         require(!_addressesThatAlreadyClaimed[user], "Address already claimed this airdrop.");
         require(_airdropAmountLeft <= _claimAmount, "Airdrop has been totally claimed already.");
         require(_claimAmount <= _tokenContract.balanceOf(address(this), _tokenId), "Airdrop contract has insufficient token balance.");
