@@ -39,7 +39,7 @@ contract CustomAirdrop1155 is Ownable {
         _expirationDate = expirationDate;
     }
 
-    function claim(address user) public {
+    function claim(address user) public onlyOwner {
         require(isAllowed(user), "Address not allowed to claim this airdrop");
         require(!hasExpired(), "Airdrop already expired.");
         require(!hasClaimed(user), "Address already claimed this airdrop.");
