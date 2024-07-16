@@ -30,7 +30,7 @@ contract AirdropManager is Administrable {
 
     constructor (address[] memory initialAdmins) Administrable(initialAdmins) {}
 
-    function claim(address airdropAddress, address user) public onlyAdmins {
+    function claim(address airdropAddress, address user) public {
         IAirdrop1155 airdrop = IAirdrop1155(airdropAddress);
         airdrop.claim(user);
     }
