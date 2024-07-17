@@ -22,6 +22,12 @@
   "homepage": "https://github.com/rsksmart/airdrop-template#readme",
   "devDependencies": {
     "@openzeppelin/contracts": "^5.0.2",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "hardhat": "^2.22.6"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2",
+    "ethereum-waffle": "^4.0.10",
+    "ethers": "^6.13.1"
   }
 }
