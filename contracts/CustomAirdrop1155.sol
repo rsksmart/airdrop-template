@@ -65,7 +65,7 @@ contract CustomAirdrop1155 is Ownable {
         emit Claim(user, _claimAmount);
     }
 
-    function getAirdropInfo() public view returns(AirdropInfo) {
+    function getAirdropInfo() public view returns(AirdropInfo memory) {
         return AirdropInfo(_airdropName, address(this), _totalAirdropAmount, _airdropAmountLeft, _claimAmount, _expirationDate);
     }
 
