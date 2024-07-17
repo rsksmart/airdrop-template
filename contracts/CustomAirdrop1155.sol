@@ -8,6 +8,15 @@ interface IERC1155 {
     function balanceOf(address account, uint256 id) external view returns (uint256);
 }
 
+struct AirdropInfo {
+    string airdropName;
+    address airdropAddress;
+    uint256 totalAirdropAmount;
+    uint256 airdropAmountLeft;
+    uint256 claimAmount;
+    uint256 expirationDate;
+}
+
 contract CustomAirdrop1155 is Ownable {
     event Claim(address recipient, uint256 amount);
     event AddressAllowed(address allowedAddress);
@@ -20,10 +29,12 @@ contract CustomAirdrop1155 is Ownable {
     uint256 _claimAmount;
     uint256 _expirationDate;
     uint256 _tokenId;
+    string _airdropName;
     mapping(address => bool) _allowedAddresses;
     mapping(address => bool) _addressesThatAlreadyClaimed;
 
     constructor(
+        string memory airdropName,
         address initialOwner,
         address tokenAddress,
         uint256 tokenId,
@@ -32,6 +43,7 @@ contract CustomAirdrop1155 is Ownable {
         uint256 expirationDate
     ) Ownable(initialOwner) {
         _tokenContract = IERC1155(tokenAddress);
+        _airdropName = airdropName;
         _tokenId = tokenId;
         _totalAirdropAmount = totalAirdropAmount;
         _airdropAmountLeft = totalAirdropAmount;
@@ -51,6 +63,10 @@ contract CustomAirdrop1155 is Ownable {
         _addressesThatAlreadyClaimed[user] = true;
 
         emit Claim(user, _claimAmount);
+    }
+
+    function getAirdropInfo() public view returns(AirdropInfo) {
+        return AirdropInfo(_airdropName, address(this), _totalAirdropAmount, _airdropAmountLeft, _claimAmount, _expirationDate);
     }
 
     function hasBalanceToClaim() public view returns(bool) {

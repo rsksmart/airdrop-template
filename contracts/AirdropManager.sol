@@ -19,14 +19,8 @@ interface IAirdrop1155 {
     function getBalance() external view returns(uint256);
 }
 
-struct Airdrop {
-    address airdropAddress;
-    string airdropName;
-}
-
 contract AirdropManager is Administrable {
-    Airdrop[] _airdrops;
-    Airdrop[] _airdropsHistory;
+    address[] _airdrops;
 
     constructor (address[] memory initialAdmins) Administrable(initialAdmins) {}
 
@@ -75,25 +69,19 @@ contract AirdropManager is Administrable {
         return airdrop.getBalance();
     }
 
-    function getAirdrops() public view returns(Airdrop[] memory) {
+    function getAirdrops() public view returns(address[] memory) {
         return _airdrops;
     }
 
-    function getAirdropsHistory() public view returns(Airdrop[] memory) {
-        return _airdropsHistory;
-    }
-
-    function addAirdrop(address airdropAddress, string memory airdropName) public onlyAdmins {
-        Airdrop memory newAirdrop = Airdrop(airdropAddress, airdropName);
-        _airdrops.push(newAirdrop);
-        _airdropsHistory.push(newAirdrop);
+    function addAirdrop(address newAirdropAddress) public onlyAdmins {
+        _airdrops.push(newAirdropAddress);
     }
 
     function removeAirdrop(address airdropAddress) public onlyAdmins {
-        Airdrop[] storage filteredAirdrops = _airdrops;
+        address[] storage filteredAirdrops = _airdrops;
 
         for (uint i; i < _airdrops.length; i++) {
-            if (_airdrops[i].airdropAddress != airdropAddress) filteredAirdrops.push(_airdrops[i]);
+            if (_airdrops[i] != airdropAddress) filteredAirdrops.push(_airdrops[i]);
         }
 
         _airdrops = filteredAirdrops;
