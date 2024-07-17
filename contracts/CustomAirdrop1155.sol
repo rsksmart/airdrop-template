@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import "@openzeppelin/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface IERC1155 {
     function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) external;
