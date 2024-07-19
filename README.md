@@ -1,5 +1,5 @@
 # airdrop-template
 
 
-```deployed address : 0x1A204f4675293e7b945B2330602616bAafe9C206```
+```deployed address : 0xB12261Ce8A7088a63C7A62ffdd568d8Fd50bee1D```
 
