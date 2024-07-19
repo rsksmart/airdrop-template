@@ -12,12 +12,10 @@ describe("AirdropManager", function () {
   before(async function () {
     [admin, user1, user2] = await ethers.getSigners();
 
-    // Deploy the MyToken contract
     myToken = await ethers.deployContract("MyToken", [admin.address], { signer: admin });
-    await myToken.waitForDeployment(); // Espera a que el contrato se despliegue completamente
+    await myToken.waitForDeployment();
     console.log("MyToken deployed at", await myToken.getAddress());
 
-    // Deploy the Custom Airdrop contract
     const name = "Custom Airdrop";
     const tokenId = 1;
     const totalAirdropAmount = ethers.parseUnits("100", 18);
@@ -33,15 +31,15 @@ describe("AirdropManager", function () {
       claimAmount,
       expirationDate
     ], { signer: admin });
-    await customAirdrop.waitForDeployment(); // Espera a que el contrato se despliegue completamente
+    await customAirdrop.waitForDeployment();
     console.log("CustomAirdrop deployed at", await customAirdrop.getAddress());
 
-    // Deploy the AirdropManager contract
+    
     airdropManager = await ethers.deployContract("AirdropManager", [[admin.address]], { signer: admin });
-    await airdropManager.waitForDeployment(); // Espera a que el contrato se despliegue completamente
+    await airdropManager.waitForDeployment(); 
     console.log("AirdropManager deployed at", await airdropManager.getAddress());
 
-    // Transfer ownership of the custom airdrop to the AirdropManager
+    
     await customAirdrop.transferOwnership(await airdropManager.getAddress());
   });
 
@@ -62,19 +60,19 @@ describe("AirdropManager", function () {
   });
 
   it("should allow a user to claim airdrop after being allowed", async function () {
-    // Mint tokens to customAirdrop for distribution
+    
     await myToken.mint(await customAirdrop.getAddress(), 1, ethers.parseUnits("100", 18), "0x");
 
-    // Ensure the balance of the customAirdrop contract is correct
+    
     const airdropBalance = await myToken.balanceOf(await customAirdrop.getAddress(), 1);
     expect(airdropBalance.toString()).to.equal(ethers.parseUnits("100", 18).toString());
 
-    // Claim the airdrop
+    
     await airdropManager.claim(await customAirdrop.getAddress(), user1.address);
 
-    // Check user's balance
+    
     const userBalance = await myToken.balanceOf(user1.address, 1);
-    expect(userBalance.toString()).to.equal(ethers.parseUnits("1", 18).toString()); // assuming claimAmount is 1 token
+    expect(userBalance.toString()).to.equal(ethers.parseUnits("1", 18).toString()); 
   });
 
   it("should fail to claim airdrop if user is not allowed", async function () {
@@ -82,7 +80,7 @@ describe("AirdropManager", function () {
   });
 
   it("should fail to claim airdrop if expired", async function () {
-    // Fast forward time to expire the airdrop
+    
     await ethers.provider.send("evm_increaseTime", [86400 + 1]); // 1 day + 1 second
     await ethers.provider.send("evm_mine", []);
 
