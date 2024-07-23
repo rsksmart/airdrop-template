@@ -78,10 +78,10 @@ contract AirdropManager is Administrable {
     }
 
     function removeAirdrop(address airdropAddress) public onlyAdmins {
-        address[] storage filteredAirdrops = _airdrops;
+        address[] memory filteredAirdrops;
 
         for (uint i; i < _airdrops.length; i++) {
-            if (_airdrops[i] != airdropAddress) filteredAirdrops.push(_airdrops[i]);
+            if (_airdrops[i] != airdropAddress) filteredAirdrops[i] = _airdrops[i];
         }
 
         _airdrops = filteredAirdrops;
