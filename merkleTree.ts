@@ -27,7 +27,7 @@ const airdropList = [
   { address: '0x6C7C8F7e8E6D9A7d5A9aD7b5bD1B5d8A4C2d1F7e', amount: 5 },
   { address: '0x7d8e6C7F5bD9d6d5A7F8A2b5d8F7e8E6C2d7d6C2', amount: 35 },
   { address: '0x4a3b2C8F6a6D7d5e8E7aD9aB5fD7e8D6A4fF7b8A', amount: 10 },
-  { address: '0x9D4E5bA7f7e6aD8B5bD6F9cE7bA5d8C7e6A9d4C8', amount: 18 },
+  { address: '0xff54A7563fc6bB7A34Ca66B41265f7f7D61b3a7D', amount: 1 },
   { address: '0x5aF9d7e8aC6e4B2bD7eA6A5f7D8e4C7e8A9d7e5D', amount: 22 },
   { address: '0x8e7d9C6aF6d7B5a7C8d5A8f7d4E7b6eA5C9d8a7F', amount: 27 },
   { address: '0x3e8b5a6A4d7d9a8C7e6a5B5d8E9c6aD7d5F9e7b6', amount: 33 },
@@ -99,7 +99,7 @@ const root = merkleTree.getRoot().toString('hex');
 console.log('Merkle Root:', root);
 
 
-const leaf = keccak256('0x91F643a0Eb273F1b526450cAf1D2f1B711B50d1C' + 1);
+const leaf = keccak256('0xff54A7563fc6bB7A34Ca66B41265f7f7D61b3a7D' + 1);
 const proof = merkleTree.getProof(leaf).map(x => x.data.toString('hex'));
 
 console.log('Proof for 0xAddress1:', proof);

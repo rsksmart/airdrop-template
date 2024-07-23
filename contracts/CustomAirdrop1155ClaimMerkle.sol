@@ -32,7 +32,6 @@ contract CustomAirdrop1155Merkle is Ownable {
     string _airdropName;
     mapping(address => bool) _allowedAddresses;
     mapping(address => bool) _addressesThatAlreadyClaimed;
-    bytes32 public merkleRoot;
 
     constructor(
         string memory airdropName,
@@ -64,41 +63,6 @@ contract CustomAirdrop1155Merkle is Ownable {
         _addressesThatAlreadyClaimed[user] = true;
 
         emit Claim(user, _claimAmount);
-    }
-
-    function claimProof(uint256 amount, bytes32[] calldata proof) public onlyOwner {
-        require(!hasExpired(), "Airdrop already expired.");
-        require(!hasClaimed(msg.sender), "Address already claimed this airdrop.");
-        require(!hasBeenTotallyClaimed(), "Airdrop has been totally claimed already.");
-        require(hasBalanceToClaim(), "Airdrop contract has insufficient token balance.");
-        require(verify(proof, msg.sender, amount), "Invalid proof.");
-
-        _tokenContract.safeTransferFrom(address(this), msg.sender, _tokenId, _claimAmount, '');
-        _airdropAmountLeft -= _claimAmount;
-        _addressesThatAlreadyClaimed[msg.sender] = true;
-
-        emit Claim(msg.sender, _claimAmount);
-    }
-
-    function verify(bytes32[] calldata proof, address account, uint256 amount) internal view returns (bool) {
-        bytes32 node = keccak256(abi.encodePacked(account, amount));
-        bytes32 computedHash = node;
-
-        for (uint256 i = 0; i < proof.length; i++) {
-            bytes32 proofElement = proof[i];
-
-            if (computedHash <= proofElement) {
-                computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
-            } else {
-                computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
-            }
-        }
-
-        return computedHash == merkleRoot;
-    }
-
-    function setMerkleRoot(bytes32 _merkleRoot) external onlyOwner {
-        merkleRoot = _merkleRoot;
     }
 
     function getAirdropInfo() public view returns(AirdropInfo memory) {
