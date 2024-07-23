@@ -3,6 +3,15 @@ pragma solidity ^0.8.19;
 
 import "./Administrable.sol";
 
+struct AirdropInfo {
+    string airdropName;
+    address airdropAddress;
+    uint256 totalAirdropAmount;
+    uint256 airdropAmountLeft;
+    uint256 claimAmount;
+    uint256 expirationDate;
+}
+
 interface IAirdrop1155 {
     function claim(address user) external;
     function hasClaimed(address _address) external view returns(bool);
@@ -17,7 +26,10 @@ interface IAirdrop1155 {
     function getTotalAirdropAmount() external view returns(uint256);
     function getAirdropAmountLeft() external view returns(uint256);
     function getBalance() external view returns(uint256);
+    function getAirdropInfo() external view returns(AirdropInfo memory info);
 }
+
+
 
 contract AirdropManager is Administrable {
     address[] _airdrops;
@@ -52,6 +64,11 @@ contract AirdropManager is Administrable {
     function getClaimAmount(address airdropAddress) public view returns(uint256) {
         IAirdrop1155 airdrop = IAirdrop1155(airdropAddress);
         return airdrop.getClaimAmount();
+    }
+
+    function getAirdropInfo(address airdropAddress) public view returns(AirdropInfo memory) {
+        IAirdrop1155 airdrop = IAirdrop1155(airdropAddress);
+        return airdrop.getAirdropInfo();
     }
 
     function getTotalAirdropAmount(address airdropAddress) public view returns(uint256) {
