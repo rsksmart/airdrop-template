@@ -29,12 +29,13 @@ interface IAirdrop1155 {
     function getAirdropInfo() external view returns(AirdropInfo memory info);
 }
 
-
-
 contract AirdropManager is Administrable {
     address[] _airdrops;
 
     constructor (address[] memory initialAdmins) Administrable(initialAdmins) {}
+
+    event AirdropAdded(address airdropAddress);
+    event AirdropRemoved(address airdropAddress);
 
     function claim(address airdropAddress, address user) public {
         IAirdrop1155 airdrop = IAirdrop1155(airdropAddress);
@@ -91,17 +92,27 @@ contract AirdropManager is Administrable {
     }
 
     function addAirdrop(address newAirdropAddress) public onlyAdmins {
+        bool exists = false;
+        for (uint i = 0; i < _airdrops.length && !exists; i++) {
+            exists = _airdrops[i] == newAirdropAddress;
+        }
+
+        require(!exists, "Airdrop already added");
         _airdrops.push(newAirdropAddress);
+        emit AirdropAdded(newAirdropAddress);
     }
 
     function removeAirdrop(address airdropAddress) public onlyAdmins {
-        address[] memory filteredAirdrops;
-
-        for (uint i; i < _airdrops.length; i++) {
-            if (_airdrops[i] != airdropAddress) filteredAirdrops[i] = _airdrops[i];
+        bool exists = false;
+        for (uint i = 0; i < _airdrops.length && !exists; i++) {
+            if (_airdrops[i] == airdropAddress) {
+                exists = true;
+                _airdrops[i] = _airdrops[_airdrops.length -1];
+                _airdrops.pop();
+            }
         }
 
-        _airdrops = filteredAirdrops;
+        if (exists) emit AirdropRemoved(airdropAddress);
     }
 
     function allowAddress(address airdropAddress, address user) public onlyAdmins {
