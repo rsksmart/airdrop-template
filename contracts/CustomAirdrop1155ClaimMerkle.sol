@@ -2,6 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 interface IERC1155 {
     function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) external;
@@ -30,8 +31,16 @@ contract CustomAirdrop1155Merkle is Ownable {
     uint256 _expirationDate;
     uint256 _tokenId;
     string _airdropName;
+
+    // (account,amount) Merkle Tree root
+    uint256 public totalClaimed;
+    bytes32 public root;
+    error InvalidProof();
+    error UsedLeaf();
+
     mapping(address => bool) _allowedAddresses;
     mapping(address => bool) _addressesThatAlreadyClaimed;
+    mapping(bytes32 => bool) public claimedLeaf;
 
     constructor(
         string memory airdropName,
@@ -63,6 +72,35 @@ contract CustomAirdrop1155Merkle is Ownable {
         _addressesThatAlreadyClaimed[user] = true;
 
         emit Claim(user, _claimAmount);
+    }
+
+    function setRoot(bytes32 _root) public onlyOwner {
+        root = _root;
+    }
+
+    function claimWithProof(uint256 amount_, bytes32[] calldata proof_) external {
+        _claim(msg.sender, msg.sender, amount_, proof_);
+    }
+
+    function _claim(address origin_, address recipient_, uint256 amount_, bytes32[] calldata proof_) internal {
+        bytes32 leaf = _buildLeaf(origin_, amount_);
+
+        if (!MerkleProof.verifyCalldata(proof_, root, leaf)) revert InvalidProof();
+        if (claimedLeaf[leaf]) revert UsedLeaf();
+        claimedLeaf[leaf] = true;
+
+        unchecked {
+            totalClaimed += amount_;
+        }
+        _tokenContract.safeTransferFrom(address(this), origin_, _tokenId, _claimAmount, '');
+        _airdropAmountLeft -= _claimAmount;
+        _addressesThatAlreadyClaimed[origin_] = true;
+
+        emit Claim(origin_, _claimAmount);
+    }
+
+    function _buildLeaf(address origin_, uint256 amount_) internal pure returns (bytes32) {
+        return keccak256(bytes.concat(keccak256(abi.encode(origin_, amount_))));
     }
 
     function getAirdropInfo() public view returns(AirdropInfo memory) {
