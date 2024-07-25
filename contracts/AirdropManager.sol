@@ -27,6 +27,8 @@ interface IAirdrop1155 {
     function getAirdropAmountLeft() external view returns(uint256);
     function getBalance() external view returns(uint256);
     function getAirdropInfo() external view returns(AirdropInfo memory info);
+    function setRoot(bytes32 _root) external;
+    function claimWithProof(uint256 amount_, bytes32[] calldata proof_) external;
 }
 
 contract AirdropManager is Administrable {

@@ -20,11 +20,8 @@ struct AirdropInfo {
 
 contract CustomAirdrop1155Merkle is Ownable {
     event Claim(address recipient, uint256 amount);
-    event AddressAllowed(address allowedAddress);
-    event AddressDisallowed(address disallowedAddress);
 
     IERC1155 _tokenContract;
-    address _initialOwner;
     uint256 _totalAirdropAmount;
     uint256 _airdropAmountLeft;
     uint256 _claimAmount;
@@ -33,12 +30,10 @@ contract CustomAirdrop1155Merkle is Ownable {
     string _airdropName;
 
     // (account,amount) Merkle Tree root
-    uint256 public totalClaimed;
     bytes32 public root;
     error InvalidProof();
     error UsedLeaf();
 
-    mapping(address => bool) _allowedAddresses;
     mapping(address => bool) _addressesThatAlreadyClaimed;
     mapping(bytes32 => bool) public claimedLeaf;
 
@@ -60,38 +55,24 @@ contract CustomAirdrop1155Merkle is Ownable {
         _expirationDate = expirationDate;
     }
 
-    function claim(address user) public onlyOwner {
-        require(isAllowed(user), "Address not allowed to claim this airdrop");
-        require(!hasExpired(), "Airdrop already expired.");
-        require(!hasClaimed(user), "Address already claimed this airdrop.");
-        require(!hasBeenTotallyClaimed(), "Airdrop has been totally claimed already.");
-        require(hasBalanceToClaim(), "Airdrop contract has insufficient token balance.");
-
-        _tokenContract.safeTransferFrom(address(this), user, _tokenId, _claimAmount, '');
-        _airdropAmountLeft -= _claimAmount;
-        _addressesThatAlreadyClaimed[user] = true;
-
-        emit Claim(user, _claimAmount);
-    }
-
     function setRoot(bytes32 _root) public onlyOwner {
         root = _root;
     }
 
-    function claimWithProof(uint256 amount_, bytes32[] calldata proof_) external {
-        _claim(msg.sender, msg.sender, amount_, proof_);
+    function claimWithProof(uint256 amount_, bytes32[] calldata proof_) external onlyOwner{
+        _claim(msg.sender, amount_, proof_);
     }
 
-    function _claim(address origin_, address recipient_, uint256 amount_, bytes32[] calldata proof_) internal {
+    function _claim(address origin_, uint256 amount_, bytes32[] calldata proof_) internal {
         bytes32 leaf = _buildLeaf(origin_, amount_);
 
         if (!MerkleProof.verifyCalldata(proof_, root, leaf)) revert InvalidProof();
         if (claimedLeaf[leaf]) revert UsedLeaf();
         claimedLeaf[leaf] = true;
+        require(!hasExpired(), "Airdrop already expired.");
+        require(!hasBeenTotallyClaimed(), "Airdrop has been totally claimed already.");
+        require(hasBalanceToClaim(), "Airdrop contract has insufficient token balance.");
 
-        unchecked {
-            totalClaimed += amount_;
-        }
         _tokenContract.safeTransferFrom(address(this), origin_, _tokenId, _claimAmount, '');
         _airdropAmountLeft -= _claimAmount;
         _addressesThatAlreadyClaimed[origin_] = true;
@@ -121,34 +102,6 @@ contract CustomAirdrop1155Merkle is Ownable {
 
     function hasExpired() public view returns(bool) {
         return _expirationDate < block.timestamp;
-    }
-
-    function allowAddress(address _address) public onlyOwner {
-        _allowedAddresses[_address] = true;
-        emit AddressAllowed(_address);
-    }
-
-    function allowAddresses(address[] memory addresses) public onlyOwner {
-        for (uint i; i < addresses.length; i++) {
-            _allowedAddresses[addresses[i]] = true;
-            emit AddressAllowed(addresses[i]);
-        }
-    }
-
-    function disallowAddresses(address[] memory addresses) public onlyOwner {
-        for (uint i; i < addresses.length; i++) {
-            _allowedAddresses[addresses[i]] = false;
-            emit AddressDisallowed(addresses[i]);
-        }
-    }
-
-    function disallowAddress(address _address) public onlyOwner {
-        _allowedAddresses[_address] = false;
-        emit AddressDisallowed(_address);
-    }
-
-    function isAllowed(address _address) public view returns(bool) {
-        return _allowedAddresses[_address];
     }
 
     function getExpirationDate() public view returns(uint256) {
