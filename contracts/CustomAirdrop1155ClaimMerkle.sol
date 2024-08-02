@@ -9,6 +9,11 @@ interface IERC1155 {
     function balanceOf(address account, uint256 id) external view returns (uint256);
 }
 
+enum AirdropType {
+    CUSTOM,
+    MERKLE
+}
+
 struct AirdropInfo {
     string airdropName;
     address airdropAddress;
@@ -16,6 +21,7 @@ struct AirdropInfo {
     uint256 airdropAmountLeft;
     uint256 claimAmount;
     uint256 expirationDate;
+    AirdropType airdropType;
 }
 
 contract CustomAirdrop1155Merkle is Ownable {
@@ -28,6 +34,7 @@ contract CustomAirdrop1155Merkle is Ownable {
     uint256 _expirationDate;
     uint256 _tokenId;
     string _airdropName;
+    AirdropType _airdropType;
 
     // (account,amount) Merkle Tree root
     bytes32 public root;
@@ -43,24 +50,24 @@ contract CustomAirdrop1155Merkle is Ownable {
         address tokenAddress,
         uint256 tokenId,
         uint256 totalAirdropAmount,
-        uint256 claimAmount,
-        uint256 expirationDate
+        uint256 expirationDate,
+        AirdropType airdropType
     ) Ownable(initialOwner) {
         _tokenContract = IERC1155(tokenAddress);
         _airdropName = airdropName;
         _tokenId = tokenId;
         _totalAirdropAmount = totalAirdropAmount;
         _airdropAmountLeft = totalAirdropAmount;
-        _claimAmount = claimAmount;
         _expirationDate = expirationDate;
+        _airdropType = airdropType;
     }
 
     function setRoot(bytes32 _root) public onlyOwner {
         root = _root;
     }
 
-    function claimWithProof(uint256 amount_, bytes32[] calldata proof_) external onlyOwner{
-        _claim(msg.sender, amount_, proof_);
+    function claim(address user, uint256 amount, bytes32[] calldata proof) external onlyOwner{
+        _claim(user, amount, proof);
     }
 
     function _claim(address origin_, uint256 amount_, bytes32[] calldata proof_) internal {
@@ -71,13 +78,12 @@ contract CustomAirdrop1155Merkle is Ownable {
         claimedLeaf[leaf] = true;
         require(!hasExpired(), "Airdrop already expired.");
         require(!hasBeenTotallyClaimed(), "Airdrop has been totally claimed already.");
-        require(hasBalanceToClaim(), "Airdrop contract has insufficient token balance.");
 
-        _tokenContract.safeTransferFrom(address(this), origin_, _tokenId, _claimAmount, '');
-        _airdropAmountLeft -= _claimAmount;
+        _tokenContract.safeTransferFrom(address(this), origin_, _tokenId, amount_, '');
+        _airdropAmountLeft -= amount_;
         _addressesThatAlreadyClaimed[origin_] = true;
 
-        emit Claim(origin_, _claimAmount);
+        emit Claim(origin_, amount_);
     }
 
     function _buildLeaf(address origin_, uint256 amount_) internal pure returns (bytes32) {
@@ -85,15 +91,11 @@ contract CustomAirdrop1155Merkle is Ownable {
     }
 
     function getAirdropInfo() public view returns(AirdropInfo memory) {
-        return AirdropInfo(_airdropName, address(this), _totalAirdropAmount, _airdropAmountLeft, _claimAmount, _expirationDate);
-    }
-
-    function hasBalanceToClaim() public view returns(bool) {
-        return _tokenContract.balanceOf(address(this), _tokenId) >= _claimAmount;
+        return AirdropInfo(_airdropName, address(this), _totalAirdropAmount, _airdropAmountLeft, 0, _expirationDate, _airdropType);
     }
 
     function hasBeenTotallyClaimed() public view returns(bool) {
-        return _airdropAmountLeft < _claimAmount;
+        return _airdropAmountLeft < 1;
     }
 
     function hasClaimed(address _address) public view returns(bool) {
@@ -106,10 +108,6 @@ contract CustomAirdrop1155Merkle is Ownable {
 
     function getExpirationDate() public view returns(uint256) {
         return _expirationDate;
-    }
-
-    function getClaimAmount() public view returns(uint256) {
-        return _claimAmount;
     }
 
     function getTotalAirdropAmount() public view returns(uint256) {

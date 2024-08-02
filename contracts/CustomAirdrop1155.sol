@@ -8,6 +8,11 @@ interface IERC1155 {
     function balanceOf(address account, uint256 id) external view returns (uint256);
 }
 
+enum AirdropType {
+    CUSTOM,
+    MERKLE
+}
+
 struct AirdropInfo {
     string airdropName;
     address airdropAddress;
@@ -15,6 +20,7 @@ struct AirdropInfo {
     uint256 airdropAmountLeft;
     uint256 claimAmount;
     uint256 expirationDate;
+    AirdropType airdropType;
 }
 
 contract CustomAirdrop1155 is Ownable {
@@ -23,13 +29,14 @@ contract CustomAirdrop1155 is Ownable {
     event AddressDisallowed(address disallowedAddress);
 
     IERC1155 _tokenContract;
-    address _initialOwner;
     uint256 _totalAirdropAmount;
     uint256 _airdropAmountLeft;
     uint256 _claimAmount;
     uint256 _expirationDate;
     uint256 _tokenId;
     string _airdropName;
+    AirdropType _airdropType;
+
     mapping(address => bool) _allowedAddresses;
     mapping(address => bool) _addressesThatAlreadyClaimed;
 
@@ -40,7 +47,8 @@ contract CustomAirdrop1155 is Ownable {
         uint256 tokenId,
         uint256 totalAirdropAmount,
         uint256 claimAmount,
-        uint256 expirationDate
+        uint256 expirationDate,
+        AirdropType airdropType
     ) Ownable(initialOwner) {
         _tokenContract = IERC1155(tokenAddress);
         _airdropName = airdropName;
@@ -49,9 +57,10 @@ contract CustomAirdrop1155 is Ownable {
         _airdropAmountLeft = totalAirdropAmount;
         _claimAmount = claimAmount;
         _expirationDate = expirationDate;
+        _airdropType = airdropType;
     }
 
-    function claim(address user) public onlyOwner {
+    function claim(address user, uint256 amount, bytes32[] calldata proof) public onlyOwner {
         require(isAllowed(user), "Address not allowed to claim this airdrop");
         require(!hasExpired(), "Airdrop already expired.");
         require(!hasClaimed(user), "Address already claimed this airdrop.");
@@ -66,7 +75,7 @@ contract CustomAirdrop1155 is Ownable {
     }
 
     function getAirdropInfo() public view returns(AirdropInfo memory) {
-        return AirdropInfo(_airdropName, address(this), _totalAirdropAmount, _airdropAmountLeft, _claimAmount, _expirationDate);
+        return AirdropInfo(_airdropName, address(this), _totalAirdropAmount, _airdropAmountLeft, _claimAmount, _expirationDate, _airdropType);
     }
 
     function hasBalanceToClaim() public view returns(bool) {

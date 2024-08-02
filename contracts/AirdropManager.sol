@@ -3,6 +3,10 @@ pragma solidity ^0.8.19;
 
 import "./Administrable.sol";
 
+enum AirdropType {
+    CUSTOM,
+    MERKLE
+}
 struct AirdropInfo {
     string airdropName;
     address airdropAddress;
@@ -10,10 +14,11 @@ struct AirdropInfo {
     uint256 airdropAmountLeft;
     uint256 claimAmount;
     uint256 expirationDate;
+    AirdropType airdropType;
 }
 
 interface IAirdrop1155 {
-    function claim(address user) external;
+    function claim(address user, uint256 amount_, bytes32[] calldata proof_) external;
     function hasClaimed(address _address) external view returns(bool);
     function hasExpired() external view returns(bool);
     function allowAddress(address _address) external;
@@ -28,7 +33,6 @@ interface IAirdrop1155 {
     function getBalance() external view returns(uint256);
     function getAirdropInfo() external view returns(AirdropInfo memory info);
     function setRoot(bytes32 _root) external;
-    function claimWithProof(uint256 amount_, bytes32[] calldata proof_) external;
 }
 
 contract AirdropManager is Administrable {
@@ -39,9 +43,10 @@ contract AirdropManager is Administrable {
     event AirdropAdded(address airdropAddress);
     event AirdropRemoved(address airdropAddress);
 
-    function claim(address airdropAddress, address user) public {
+    function claim(address airdropAddress, address user, uint256 amount, bytes32[] calldata proof) public {
+        require(msg.sender == user, "Only the account owner is able to claim the airdrop");
         IAirdrop1155 airdrop = IAirdrop1155(airdropAddress);
-        airdrop.claim(user);
+        airdrop.claim(user, amount, proof);
     }
 
     function hasClaimed(address airdropAddress, address user) public view returns(bool) {
@@ -102,6 +107,11 @@ contract AirdropManager is Administrable {
         require(!exists, "Airdrop already added");
         _airdrops.push(newAirdropAddress);
         emit AirdropAdded(newAirdropAddress);
+    }
+
+    function setRoot(address airdropAddress, bytes32 _root) public onlyAdmins {
+        IAirdrop1155 airdrop = IAirdrop1155(airdropAddress);
+        airdrop.setRoot(_root);
     }
 
     function removeAirdrop(address airdropAddress) public onlyAdmins {
