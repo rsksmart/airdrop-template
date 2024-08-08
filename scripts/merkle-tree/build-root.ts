@@ -33,6 +33,16 @@ async function main() {
   jsonData.entries.forEach((leaf: [Address, BigNumberish]) => {
     console.log(`Proof for ${leaf[0]} is: ${merkleTree.getProof(leaf)}`);
   });
+
+  const jsonInfo = jsonData.entries.map((leaf: [Address, BigNumberish]) => {
+    return {
+      address: leaf[0],
+      amount: leaf[1],
+      proof: merkleTree.getProof(leaf),
+    };
+  });
+  console.log('json info formatted is :', jsonInfo);
+  
   console.log("------------------------");
   console.log("MerkleTree root is:", merkleTree.root);
   console.log("TotalClaimSupply is:", totalClaimSupply);
