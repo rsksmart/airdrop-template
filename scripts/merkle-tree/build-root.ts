@@ -37,15 +37,24 @@ async function main() {
   const jsonInfo = jsonData.entries.map((leaf: [Address, BigNumberish]) => {
     return {
       address: leaf[0],
-      amount: leaf[1],
+      amount: leaf[1].toString(),
       proof: merkleTree.getProof(leaf),
     };
   });
-  console.log('json info formatted is :', jsonInfo);
+  const formatedData = {
+    merkleRoot: merkleTree.root,
+    totalClaimSupply: totalClaimSupply.toString(),
+    claims: jsonInfo,
+  };
   
   console.log("------------------------");
   console.log("MerkleTree root is:", merkleTree.root);
   console.log("TotalClaimSupply is:", totalClaimSupply);
+  
+  const outputPath = "./scripts/merkle-tree/output.json";
+  fs.writeFileSync(outputPath, JSON.stringify(formatedData, null, 2), "utf8");
+  console.log("------------------------");
+  console.log(`Data written to ${outputPath}`);
 }
 
 main().catch(error => {

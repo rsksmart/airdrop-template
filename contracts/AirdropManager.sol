@@ -44,7 +44,6 @@ contract AirdropManager is Administrable {
     event AirdropRemoved(address airdropAddress);
 
     function claim(address airdropAddress, address user, uint256 amount, bytes32[] calldata proof) public {
-        require(msg.sender == user, "Only the account owner is able to claim the airdrop");
         IAirdrop1155 airdrop = IAirdrop1155(airdropAddress);
         airdrop.claim(user, amount, proof);
     }
