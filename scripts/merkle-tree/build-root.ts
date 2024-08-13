@@ -4,7 +4,7 @@
  */
 
 import fs from "fs";
-import { BigNumberish, toBigInt } from "ethers";
+import { BigNumberish, ethers, toBigInt } from "ethers";
 import { Address } from "hardhat-deploy/types";
 import { createMerkleTree } from "../utils";
 
@@ -37,13 +37,13 @@ async function main() {
   const jsonInfo = jsonData.entries.map((leaf: [Address, BigNumberish]) => {
     return {
       address: leaf[0],
-      amount: leaf[1].toString(),
+      amount: ethers.parseEther(leaf[1].toString()).toString(),
       proof: merkleTree.getProof(leaf),
     };
   });
   const formatedData = {
     merkleRoot: merkleTree.root,
-    totalClaimSupply: totalClaimSupply.toString(),
+    totalClaimSupply: ethers.parseEther(totalClaimSupply.toString()).toString(),
     claims: jsonInfo,
   };
   
