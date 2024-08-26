@@ -37,13 +37,13 @@ async function main() {
   const jsonInfo = jsonData.entries.map((leaf: [Address, BigNumberish]) => {
     return {
       address: leaf[0],
-      amount: ethers.parseEther(leaf[1].toString()).toString(),
+      amount: leaf[1].toString(),
       proof: merkleTree.getProof(leaf),
     };
   });
   const formatedData = {
     merkleRoot: merkleTree.root,
-    totalClaimSupply: ethers.parseEther(totalClaimSupply.toString()).toString(),
+    totalClaimSupply: totalClaimSupply.toString(),
     claims: jsonInfo,
   };
   
