@@ -2,27 +2,9 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./Types.sol";
+
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-
-interface IERC1155 {
-    function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) external;
-    function balanceOf(address account, uint256 id) external view returns (uint256);
-}
-
-enum AirdropType {
-    CUSTOM,
-    MERKLE
-}
-
-struct AirdropInfo {
-    string airdropName;
-    address airdropAddress;
-    uint256 totalAirdropAmount;
-    uint256 airdropAmountLeft;
-    uint256 claimAmount;
-    uint256 expirationDate;
-    AirdropType airdropType;
-}
 
 contract CustomAirdrop1155Merkle is Ownable {
     event Claim(address recipient, uint256 amount);

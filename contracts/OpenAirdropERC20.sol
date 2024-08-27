@@ -4,17 +4,16 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./Types.sol";
 
-contract CustomAirdrop1155 is Ownable {
+contract OpenAirdropERC20 is Ownable {
     event Claim(address recipient, uint256 amount);
     event AddressAllowed(address allowedAddress);
     event AddressDisallowed(address disallowedAddress);
 
-    IERC1155 _tokenContract;
+    IERC20 _tokenContract;
     uint256 _totalAirdropAmount;
     uint256 _airdropAmountLeft;
     uint256 _claimAmount;
     uint256 _expirationDate;
-    uint256 _tokenId;
     string _airdropName;
     AirdropType _airdropType;
 
@@ -25,34 +24,34 @@ contract CustomAirdrop1155 is Ownable {
         string memory airdropName,
         address initialOwner,
         address tokenAddress,
-        uint256 tokenId,
         uint256 totalAirdropAmount,
         uint256 claimAmount,
-        uint256 expirationDate,
-        AirdropType airdropType
+        uint256 expirationDate
     ) Ownable(initialOwner) {
-        _tokenContract = IERC1155(tokenAddress);
+        _tokenContract = IERC20(tokenAddress);
         _airdropName = airdropName;
-        _tokenId = tokenId;
         _totalAirdropAmount = totalAirdropAmount;
         _airdropAmountLeft = totalAirdropAmount;
         _claimAmount = claimAmount;
         _expirationDate = expirationDate;
-        _airdropType = airdropType;
+        _airdropType = AirdropType.CUSTOM;
     }
 
     function claim(address user, uint256 amount, bytes32[] calldata proof) public onlyOwner {
-        require(isAllowed(user), "Address not allowed to claim this airdrop");
         require(!hasExpired(), "Airdrop already expired.");
         require(!hasClaimed(user), "Address already claimed this airdrop.");
         require(!hasBeenTotallyClaimed(), "Airdrop has been totally claimed already.");
         require(hasBalanceToClaim(), "Airdrop contract has insufficient token balance.");
 
-        _tokenContract.safeTransferFrom(address(this), user, _tokenId, _claimAmount, '');
+        _tokenContract.transfer(user, _claimAmount);
         _airdropAmountLeft -= _claimAmount;
         _addressesThatAlreadyClaimed[user] = true;
 
         emit Claim(user, _claimAmount);
+    }
+    
+    function isAllowed(address user) public pure returns(bool) {
+        return true;
     }
 
     function getAirdropInfo() public view returns(AirdropInfo memory) {
@@ -60,7 +59,7 @@ contract CustomAirdrop1155 is Ownable {
     }
 
     function hasBalanceToClaim() public view returns(bool) {
-        return _tokenContract.balanceOf(address(this), _tokenId) >= _claimAmount;
+        return _tokenContract.balanceOf(address(this)) >= _claimAmount;
     }
 
     function hasBeenTotallyClaimed() public view returns(bool) {
@@ -73,34 +72,6 @@ contract CustomAirdrop1155 is Ownable {
 
     function hasExpired() public view returns(bool) {
         return _expirationDate < block.timestamp;
-    }
-
-    function allowAddress(address _address) public onlyOwner {
-        _allowedAddresses[_address] = true;
-        emit AddressAllowed(_address);
-    }
-
-    function allowAddresses(address[] memory addresses) public onlyOwner {
-        for (uint i; i < addresses.length; i++) {
-            _allowedAddresses[addresses[i]] = true;
-            emit AddressAllowed(addresses[i]);
-        }
-    }
-
-    function disallowAddresses(address[] memory addresses) public onlyOwner {
-        for (uint i; i < addresses.length; i++) {
-            _allowedAddresses[addresses[i]] = false;
-            emit AddressDisallowed(addresses[i]);
-        }
-    }
-
-    function disallowAddress(address _address) public onlyOwner {
-        _allowedAddresses[_address] = false;
-        emit AddressDisallowed(_address);
-    }
-
-    function isAllowed(address _address) public view returns(bool) {
-        return _allowedAddresses[_address];
     }
 
     function getExpirationDate() public view returns(uint256) {
@@ -120,10 +91,6 @@ contract CustomAirdrop1155 is Ownable {
     }
 
     function getBalance() public view returns(uint256) {
-        return _tokenContract.balanceOf(address(this), _tokenId);
-    }
-
-    function onERC1155Received(address operator, address from, uint256 id, uint256 value, bytes memory data) external pure returns (bytes4) {
-        return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
+        return _tokenContract.balanceOf(address(this));
     }
 }
