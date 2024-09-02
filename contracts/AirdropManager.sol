@@ -74,7 +74,7 @@ contract AirdropManager is Administrable {
         uint256 totalAirdropAmount,
         uint256 claimAmount,
         uint256 expirationDate
-    ) public onlyAdmins returns(address) {
+    ) public returns(address) {
         OpenAirdropERC20 deployedAirdrop = new OpenAirdropERC20(airdropName, address(this), tokenAddress, totalAirdropAmount, claimAmount, expirationDate);
         address airdropAddress = address(deployedAirdrop);
 
