@@ -3,6 +3,70 @@
 # ERC1155 Airdrop Smart Contracts Template
 This project is an open-source template for creating an ERC1155 airdrop smart contract on the RSK network. The template is designed to be easy to use and customize, and it includes a simple example of how to create an airdrop campaign and distribute tokens to multiple recipients.
 
+## Deployment
+The smart contracts in this template can be deployed to the RSK network using the next command:
+```bash
+npx hardhat ignition deploy ignition/modules/AirdropManager.ts --network rskTestnet
+```
+
+It will deploy the `AirdropManager`, `AirdropDeployerERC20Module` & `AirdropDeployerERC1155Module` contracts and its dependencies to the RSK Testnet network. You should see a response like:
+```bash
+Hardhat Ignition 🚀
+
+Deploying [ AirdropManagerModule ]
+
+Batch #1
+  Executed AirdropDeployerERC1155Module#AirdropDeployerERC1155
+  Executed AirdropDeployerERC20Module#AirdropDeployerERC20
+
+Batch #2
+  Executed AirdropManagerModule#AirdropManager
+
+[ AirdropManagerModule ] successfully deployed 🚀
+
+Deployed Addresses
+
+AirdropDeployerERC1155Module#AirdropDeployerERC1155 - 0x6465331bBf430f53504cb94BF2d2AF32E5740F68
+AirdropDeployerERC20Module#AirdropDeployerERC20 - 0xda0c531F4dAFED4E6bc6EfBe2D281C49BA5eE049
+AirdropManagerModule#AirdropManager - 0x19Fa15E7084D802335cfC1B7d5AC22a6b80Bf6Ef
+```
+> Also, you can see the deployed contracts in the `ignition/deployments/chain-31/deployed_addresses` folder.
+
+## Verify Contracts
+To verify the contracts on the RSK network, you can use the next command:
+1. AirdropDeployerERC1155
+```bash
+npx hardhat verify --network rskTestnet 0x49dbbA265c0f4a7Ca8C277F57E189f6B90998aEE
+```
+***Note: Replace the address `0x49dbbA265c0f4a7Ca8C277F57E189f6B90998aEE` with the address of the contract you want to verify.***
+
+2. AirdropDeployerERC20
+```bash
+npx hardhat verify --network rskTestnet 0xe68B923822E0b9067413be380dBED46f295F2372
+```
+***Note: Replace the address `0xe68B923822E0b9067413be380dBED46f295F2372` with the address of the contract you want to verify.***
+
+3. AirdropManager, for this contract verification, you need to pass the constructor arguments in the file `AirdropManagerArguments.js`, so make sure you replace them with your own args:
+```bash
+npx hardhat verify --constructor-args AirdropManagerArguments.js --network rskTestnet 0xFdEdc1427b745D9876B5BBF21e2F57922CF78117
+```
+You should see a response like this in each verification:
+```bash
+Successfully verified contract AirdropDeployerERC20 on the block explorer.
+https://rootstock-testnet.blockscout.com/address/0xe68B923822E0b9067413be380dBED46f295F2372#code
+```
+
+## Deploy ERC1155
+We have included an ERC1155 contract in the `contracts/ERC1155/Erc1155.sol` file. You can modify it as needed and deploy it to the RSK network.
+
+To deploy your ERC1155 contract, you can use the next command:
+```bash
+npx hardhat ignition deploy ignition/modules/ERC1155.ts --network rskTestnet
+```
+And then you can use the next command to verify the contract:
+```bash
+npx hardhat verify --network rskTestnet 0xe68B923822E0b9067413be380dBED46f295F2372
+```
 ## Smart Contracts Reference
 
 ### 1. **Administrable.sol**

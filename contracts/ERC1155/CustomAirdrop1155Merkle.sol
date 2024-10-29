@@ -2,27 +2,9 @@
 pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "../Tools/Types.sol";
+
 import { MerkleProof } from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-
-interface IERC1155 {
-    function safeTransferFrom(address from, address to, uint256 id, uint256 amount, bytes memory data) external;
-    function balanceOf(address account, uint256 id) external view returns (uint256);
-}
-
-enum AirdropType {
-    CUSTOM,
-    MERKLE
-}
-
-struct AirdropInfo {
-    string airdropName;
-    address airdropAddress;
-    uint256 totalAirdropAmount;
-    uint256 airdropAmountLeft;
-    uint256 claimAmount;
-    uint256 expirationDate;
-    AirdropType airdropType;
-}
 
 contract CustomAirdrop1155Merkle is Ownable {
     event Claim(address recipient, uint256 amount);
@@ -91,7 +73,7 @@ contract CustomAirdrop1155Merkle is Ownable {
     }
 
     function getAirdropInfo() public view returns(AirdropInfo memory) {
-        return AirdropInfo(_airdropName, address(this), _totalAirdropAmount, _airdropAmountLeft, 0, _expirationDate, _airdropType);
+        return AirdropInfo(_airdropName, address(this), _totalAirdropAmount, _airdropAmountLeft, 0, _expirationDate, _airdropType, '');
     }
 
     function hasBeenTotallyClaimed() public view returns(bool) {
@@ -124,5 +106,10 @@ contract CustomAirdrop1155Merkle is Ownable {
 
     function onERC1155Received(address operator, address from, uint256 id, uint256 value, bytes memory data) external pure returns (bytes4) {
         return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
+    }
+
+    function getUri() public view returns (string memory) {
+        //NOT IMPLEMENTED YET
+        return 'not implemented';
     }
 }
